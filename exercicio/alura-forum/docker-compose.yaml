@@ -1,0 +1,24 @@
+version: '3.3'
+services:
+  alura-database:
+    build: ./alura-database
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: "alura_forum"
+      MYSQL_USER: "alura"
+      MYSQL_PASSWORD: "qwerty123"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "1"
+    volumes:
+      - /vagrant/alura-forum/alura-database/mysql.conf.d:/etc/mysql/conf.d
+      - /home/vagrant/mysql-data:/var/lib/mysql
+
+  alura-web:
+    build: ./alura-web
+    environment:
+      JAVA_OPTS: "-Dspring.profiles.active=producao"
+    ports:
+      - "8080:8080"
+    links:
+      - alura-database:database

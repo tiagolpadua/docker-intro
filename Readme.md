@@ -2,6 +2,10 @@
 
 > Baseado em [https://docs.docker.com/get-started/overview/](https://docs.docker.com/get-started/overview/)
 
+> [Cheat Sheet 1](https://www.docker.com/sites/default/files/d8/2019-09/docker-cheat-sheet.pdf)
+
+> [Cheat Sheet 2](https://dockerlabs.collabnix.com/docker/cheatsheet/)
+
 ## Visão geral
 
 Docker é uma plataforma aberta para desenvolvimento, implantação e execução de aplicativos. O Docker permite que você separe seus aplicativos de sua infraestrutura para que possa entregar o software rapidamente. Com o Docker, você pode gerenciar sua infraestrutura da mesma forma que gerencia seus aplicativos. Tirando proveito das metodologias do Docker para implantar, testar e implantar código rapidamente, você pode reduzir significativamente o atraso entre a escrita do código e sua execução na produção. (**Lead Time**).
@@ -92,6 +96,202 @@ Quando você executa este comando, acontece o seguinte (supondo que você esteja
 
 6. Quando você digita `exit` para encerrar o comando `/bin/bash`, o contêiner para, mas não é removido. Você pode reiniciá-lo ou removê-lo.
 
+### Exercício: Executando o Docker
+
+1. Crie um novo projeto genérico no Eclipse: File -> New -> Other -> General Project, nomeie o projeto como `alura-forum-docker`
+
+2. Crie um `Vagrantfile` na raiz do projeto com o seguinte conteúdo:
+
+```ruby
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
+  config.vm.provision "docker"
+end
+```
+
+3. Acesse a raiz do projeto via terminal e execute: `vagrant up`
+
+4. Após a execução, acesse a máquina com o comando: `vagrant ssh`
+
+5. Verifique se o docker está instalado corretamente com o comando:
+
+```bash
+vagrant@vagrant:~$ docker --version
+Docker version 19.03.13, build 4484c46d9d
+```
+
+6. Execute um `hello world` docker:
+
+```bash
+vagrant@vagrant:~$ docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+0e03bdcc26d7: Pull complete
+Digest: sha256:8c5aeeb6a5f3ba4883347d3747a7249f491766ca1caa47e5da5dfcf6b9b717c0
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+```
+
+7. Execute novamente o `hello world` e observe que desta vez a imagem não será baixada:
+
+```bash
+vagrant@vagrant:~$ docker run hello-world
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+```
+
+8. Para listar as imagens disponíveis em seu sistema execute o comando `docker images`:
+
+```bash
+vagrant@vagrant:~$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+hello-world         latest              bf756fb1ae65        10 months ago       13.3kB
+```
+
+9. Para limpar o sistema, removendo todas as imagens, você pode executar o comando `docker system prune -a`:
+
+```bash
+vagrant@vagrant:~$ docker system prune -a
+WARNING! This will remove:
+  - all stopped containers
+  - all networks not used by at least one container
+  - all images without at least one container associated to them
+  - all build cache
+
+Are you sure you want to continue? [y/N] y
+Deleted Images:
+untagged: hello-world:latest
+untagged: hello-world@sha256:8c5aeeb6a5f3ba4883347d3747a7249f491766ca1caa47e5da5dfcf6b9b717c0
+deleted: sha256:bf756fb1ae65adf866bd8c456593cd24beb6a0a061dedf42b26a993176745f6b
+deleted: sha256:9c27e219663c25e0f28493790cc0b88bc973ba3b1686355f221c38a36978ac63
+
+Total reclaimed space: 13.34kB
+```
+
+10. Execute novamente o *hello world* e em seguida liste os containers:
+
+```bash
+vagrant@vagrant:~$ docker run hello-world
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+
+vagrant@vagrant:~$ docker container ls -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
+82a9ffea4501        hello-world         "/hello"            4 seconds ago       Exited (0) 3 seconds ago                       determined_goldstine
+```
+
+11. Remova o container que está parado:
+
+```bash
+vagrant@vagrant:~$ docker container rm 82a9ffea4501
+82a9ffea4501
+vagrant@vagrant:~$ docker container ls -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+```
+
+12. Execute a imagem do ubuntu:
+
+```bash
+docker run -i -t ubuntu /bin/bash
+```
+
+Verifique o kernel que está sendo executado com o comando `uname -a`, saia do container e verifique o kernel que está sendo executado com o comando `uname -a`.
+
+13. Execute o [mysql](https://hub.docker.com/_/mysql):
+
+```bash
+docker run --name alura-database -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
+docker ps -a
+docker exec -it alura-database bash
+mysql -u root -p
+show databases;
+exit
+exit
+docker ps -a
+docker stop alura-database
+docker ps -a
+docker start alura-database
+docker ps -a
+docker kill alura-database
+docker container rm alura-database
+docker ps -a
+```
+
+<!-- 14. Saia do vagrant (`exit/vagrant halt`) e reconfigure para expor a porta 3306, em seguida inicie o vagrant novamente assim como o mysql:
+
+```bash
+config.vm.network :forwarded_port, guest: 3306, host: 3306
+```
+
+15. Teste a comunicação de seu terminal com o mysql. -->
+
+### HYPERVISORS VS CONTAINERS
+
+![hyper.jpg](assets/hyper.jpg)
+
+![container.jpg](assets/container.jpg)
+
 ### SERVIÇOS
 
 Os serviços permitem que você dimensione contêineres em vários daemons do Docker, que funcionam juntos como um *enxame* com vários *gerentes* e *trabalhadores*. Cada membro de um swarm é um daemon do Docker e todos os daemons se comunicam usando a API Docker. Um serviço permite que você defina o estado desejado, como o número de réplicas do serviço que devem estar disponíveis a qualquer momento. Por padrão, o serviço tem balanceamento de carga em todos os nós de trabalho. Para o consumidor, o serviço Docker parece ser um único aplicativo. O Docker Engine suporta o modo swarm no Docker 1.12 e superior.
@@ -125,3 +325,13 @@ O *Union file system*, ou UnionFS, é um sistema de arquivos que opera criando c
 ### Formato do Container
 
 O Docker Engine combina os namespaces, grupos de controle e UnionFS em um wrapper chamado formato de contêiner. O formato de contêiner padrão é `libcontainer`. No futuro, o Docker pode oferecer suporte a outros formatos de contêiner integrando-se com tecnologias como BSD Jails ou Solaris Zones.
+
+### Exercício: Criando um Dockerfile
+
+```bash
+git clone https://github.com/dockersamples/node-bulletin-board
+cd node-bulletin-board/bulletin-board-app
+docker build --tag bulletinboard:1.0 .
+docker run --publish 8000:8080 --detach --name bb bulletinboard:1.0
+docker logs -f --until=2s bb
+```
